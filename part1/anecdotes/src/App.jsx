@@ -38,19 +38,19 @@ const App = () => {
       <p>{anecdotes[selected]}</p>
       <p>has {votes[selected]} votes</p>
       <div>
-      <Button handleClick = {() => {
-        copy[selected] += 1
-        setVotes(copy)
-        }
-      } text = 'vote'/>
-      <Button handleClick = {() => {
-        setSelected(getRandomInt(anecdotes.length))
-        setVotes(copy)
-        }
-      } text = 'Next anecdote'/>
+        <Button handleClick = {() => {
+          copy[selected] += 1
+          setVotes(copy)
+          }
+        } text = 'vote'/>
+        <Button handleClick = {() => {
+          setSelected(getRandomInt(anecdotes.length))
+          setVotes(copy)
+          }
+        } text = 'Next anecdote'/>
+      </div>
       <Header text='Anecdote with most votes' />
       <p>{anecdotes[votes.indexOf(Math.max(...votes))]}</p>
-      </div>
     </div>
   )
 }
