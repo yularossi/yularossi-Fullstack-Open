@@ -1,3 +1,5 @@
+/*componente Course importado, dentro de Course se
+encuentran los demas subcomponentes*/
 import Course from './components/Course'
 
 const App = () => {
