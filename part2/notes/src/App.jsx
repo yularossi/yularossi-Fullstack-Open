@@ -15,7 +15,9 @@ const App = () => {
       number : newNumber
     }
 
-    if (persons.some(person => person.name === newName)) {
+    if (newName === '' || newNumber === '') {
+      alert('Please fill in both name and number')
+    } else if (persons.some(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook`)
     } else if (persons.some(person => person.number === newNumber)) {
       alert(`Number ${newNumber} is already added to phonebook`)
