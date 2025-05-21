@@ -1,7 +1,7 @@
 import Note from './Note'
 
 //estructura del componente List de la phonebook
-const List = ({ persons, setPersons, filteredPersons }) => {
+const List = ({ setPersons, filteredPersons }) => {
   return (
     <div>
         <h2>Numbers</h2>
