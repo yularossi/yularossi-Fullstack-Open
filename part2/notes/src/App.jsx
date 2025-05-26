@@ -31,7 +31,15 @@ const App = () => {
     if (newName === '' || newNumber === '') {
       alert('Please fill in both name and number')
     } else if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
+        personService.update(persons.find(person => person.name === newName).id, nameObject)
+        .then(response => {
+          console.log(response.data)
+          setPersons(persons.map(person => person.name !== newName ? person : response.data))
+          setNewName('')
+          setNewNumber('')
+        })
+      }
     } else if (persons.some(person => person.number === newNumber)) {
       alert(`Number ${newNumber} is already added to phonebook`)
     } else {
@@ -46,6 +54,19 @@ const App = () => {
       .catch(error => {
         console.error('Error adding person:', error)
       })
+    }
+  }
+
+  const deleteNumber = (id) => {
+    if (window.confirm(`Delete this person?`)) {
+      personService.deletePerson(id)
+        .then(() => {
+          console.log(`Deleted person with id ${id}`)
+          setPersons(persons.filter(person => person.id !== id))
+        })
+        .catch(error => {
+          console.error('Error deleting person:', error)
+        })
     }
   }
 
@@ -76,6 +97,7 @@ const App = () => {
       <List
         setPersons={setPersons}
         filteredPersons={filteredPersons}
+        deleteNumber={deleteNumber}
       />
     </div>
   )
