@@ -4,13 +4,17 @@ import personService from './services/persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import List from './components/List'
+import Notification from './components/notification'
+import Footer from './components/Footer'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
+  //estado inicial de la app obtenida del servidor json
   useEffect(() => {
     console.log('effect')
     personService.getAll()
@@ -21,6 +25,7 @@ const App = () => {
   }, [])
   console.log('render', persons.length, 'persons')
   
+  //funcion completa para agregar una persona
   const addPerson = (event) => {
     event.preventDefault()
     const nameObject = {
@@ -38,6 +43,10 @@ const App = () => {
           setPersons(persons.map(person => person.name !== newName ? person : response.data))
           setNewName('')
           setNewNumber('')
+           setNotificationMessage(`Number updated for ${newName}`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 4000)
         })
       }
     } else if (persons.some(person => person.number === newNumber)) {
@@ -50,6 +59,10 @@ const App = () => {
         setPersons(persons.concat(response.data))
         setNewName('')
         setNewNumber('')
+        setNotificationMessage(`${newName} has been added to phonebook`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 4000)
       })
       .catch(error => {
         console.error('Error adding person:', error)
@@ -57,6 +70,7 @@ const App = () => {
     }
   }
 
+  //funcion para eliminar a una persona
   const deleteNumber = (id) => {
     if (window.confirm(`Delete this person?`)) {
       personService.deletePerson(id)
@@ -65,7 +79,7 @@ const App = () => {
           setPersons(persons.filter(person => person.id !== id))
         })
         .catch(error => {
-          console.error('Error deleting person:', error)
+           console.error('Error deleting person:', error)
         })
     }
   }
@@ -76,12 +90,13 @@ const App = () => {
       filter : newFilter
     }
   }
-  
+
   const filteredPersons = (persons.filter(person => person.name.toLowerCase().includes(newFilter.toLowerCase())))
 
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={notificationMessage} />
       <Filter
         submitEvent={addFilter}
         filter={newFilter}
@@ -99,6 +114,7 @@ const App = () => {
         filteredPersons={filteredPersons}
         deleteNumber={deleteNumber}
       />
+      <Footer />
     </div>
   )
 }
