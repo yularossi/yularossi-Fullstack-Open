@@ -12,7 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
-  const [notificationMessage, setNotificationMessage] = useState(null)
+  const [notificationMessage, setNotificationMessage, errorMessage, setErrorMessage] = useState(null)
 
   //estado inicial de la app obtenida del servidor json
   useEffect(() => {
@@ -34,8 +34,11 @@ const App = () => {
     }
 
     if (newName === '' || newNumber === '') {
-      alert('Please fill in both name and number')
-    } else if (persons.some(person => person.name === newName)) {
+      setErrorMessage('Name and number must be filled out')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 4000)
+    } else if (persons.some(person => person.name === newName) & persons.some(person => person.number != newNumber)) {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
         personService.update(persons.find(person => person.name === newName).id, nameObject)
         .then(response => {
@@ -43,14 +46,23 @@ const App = () => {
           setPersons(persons.map(person => person.name !== newName ? person : response.data))
           setNewName('')
           setNewNumber('')
-           setNotificationMessage(`Number updated for ${newName}`)
+          setNotificationMessage(`Number updated for ${newName}`)
           setTimeout(() => {
             setNotificationMessage(null)
           }, 4000)
         })
+        .catch(error => {
+          setErrorMessage(`Error updating ${newName}'s number`)
+          setTimeout(() => {
+            setErrorMessage(null) 
+          }, 4000)
+        })
       }
     } else if (persons.some(person => person.number === newNumber)) {
-      alert(`Number ${newNumber} is already added to phonebook`)
+      setErrorMessage(`Number ${newNumber} is already in use`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 4000)
     } else {
       // Add the new person to the server
       personService.create(nameObject)
@@ -65,7 +77,10 @@ const App = () => {
           }, 4000)
       })
       .catch(error => {
-        console.error('Error adding person:', error)
+        setErrorMessage(`Error adding ${newName}`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 4000)
       })
     }
   }
@@ -77,9 +92,17 @@ const App = () => {
         .then(() => {
           console.log(`Deleted person with id ${id}`)
           setPersons(persons.filter(person => person.id !== id))
+          setNotificationMessage('Person deleted successfully')
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 4000)
         })
         .catch(error => {
-           console.error('Error deleting person:', error)
+          console.error(`Error deleting person with id ${id}:`, error)
+          setErrorMessage('Error deleting person')
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 4000)
         })
     }
   }
@@ -96,7 +119,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <Notification message={notificationMessage} />
+      <Notification message={notificationMessage} errorMessage={errorMessage} />
       <Filter
         submitEvent={addFilter}
         filter={newFilter}
