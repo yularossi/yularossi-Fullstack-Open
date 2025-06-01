@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import countriesService from './services/countries'
+//import weatherService from './services/weather'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import List from './components/List'
