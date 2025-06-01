@@ -29,11 +29,16 @@ const List = ({ setCountries, filteredCountries }) => {
         <h2>Countries</h2>
         <ul>
           {filteredCountries.map(country => 
-            <Note 
+            <div key={country.cca2} style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem"}}> 
+              <Note 
               key={country.cca3} 
               country={country} 
               setCountries={setCountries}
             />
+            <button onClick={() => setCountries([country])}>
+              Show
+            </button>
+            </div>
           )}
         </ul>
       </div>
