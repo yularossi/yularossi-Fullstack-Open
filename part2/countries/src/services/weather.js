@@ -4,8 +4,7 @@ import axios from 'axios'
 const getWeather = (country) => {
   const apiKey = import.meta.env.VITE_WEATHER_API_KEY
 // const baseUrl = 'http://api.weatherapi.com/v1/current.json?key=8f762e3602a54c7cb0c195045250106&q=London&aqi=no'
-const baseUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${country}&aqi=no`
-  // const url = `${baseUrl}&q=${country}`
+const baseUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q='${country}'&aqi=no`
   const response = axios.get(baseUrl).then(res => res.data).catch(error => {
     console.error('Error fetching weather data:', error)
       })
