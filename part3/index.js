@@ -35,7 +35,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = (request.params.id)
+  const id = request.params.id
   const person = persons.find(person => person.id === id)
   response.json(person)
 
@@ -53,18 +53,15 @@ app.get('/info', (request, response) => {
   response.send(info)
 })
 
-app.delete('/api/person/:id', (request, response) => {
-  const id = Number(request.params.id)
+app.delete('/api/persons/:id', (request, response) => {
+  const id = request.params.id
   persons = persons.filter(person => person.id !== id)
 
   response.status(204).end()
 })
 
 const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => n.id))
-    : 0
-  return String(maxId + 1)
+  return Math.floor(Math.random() * 1000000)
 }
 
 app.post('/api/persons', (request, response) => {
@@ -78,7 +75,7 @@ app.post('/api/persons', (request, response) => {
 
     const person = {
       content: body.content,
-      id: generateId()
+      id: String(generateId())
     }
 
     persons = persons.concat(person)
