@@ -67,15 +67,21 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
     const body = request.body
 
-    if (!body.content) {
+    if (!body.name || !body.number) {
       return response.status(400).json({
-        error: 'content missing'
+        error: 'name or number missing'
+      })
+    } else if (persons.some(person => person.name === body.name)) {
+      return response.status(400).json({
+        error: 'this name already exists in the phonebook'
       })
     }
 
     const person = {
-      content: body.content,
-      id: String(generateId())
+      // Generate a unique ID for the new person
+      id: String(generateId()),
+      name: body.name,
+      number: body.number
     }
 
     persons = persons.concat(person)
