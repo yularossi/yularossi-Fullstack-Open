@@ -1,14 +1,5 @@
 const express = require('express')
 const app = express()
-const morgan = require('morgan')
-
-morgan.token('post', (req) => {
-  return req.method === 'POST' ? JSON.stringify(req.body) : ''
-})
-
-// Custom morgan format to log POST request bodies
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
-
 app.use(express.json())
 
 let persons = [
@@ -103,17 +94,25 @@ const requestLogger = (request, response, next) => {
   console.log('---')
   next()
 }
-
 app.use(requestLogger)
 
 // Middleware to handle unknown endpoints
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-
 app.use(unknownEndpoint)
 
-const PORT = 3001
+const cors = require('cors')
+app.use(cors())
+
+const morgan = require('morgan')
+morgan.token('post', (req) => {
+  return req.method === 'POST' ? JSON.stringify(req.body) : ''
+})
+// Custom morgan format to log POST request bodies
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
+
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
