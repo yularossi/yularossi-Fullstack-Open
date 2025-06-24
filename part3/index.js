@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const cors = require('cors')
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
   console.log('Path:', request.path)
@@ -14,7 +13,6 @@ morgan.token('post', (req) => {
 })
 
 app.use(express.json())
-app.use(cors())
 app.use(requestLogger)
 // Custom morgan format to log POST request bodies
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
