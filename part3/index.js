@@ -1,6 +1,24 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:', request.path)
+  console.log('Body:', request.body)
+  console.log('---')
+  next()
+}
+const morgan = require('morgan')
+morgan.token('post', (req) => {
+  return req.method === 'POST' ? JSON.stringify(req.body) : ''
+})
+
 app.use(express.json())
+app.use(cors())
+app.use(requestLogger)
+// Custom morgan format to log POST request bodies
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
+app.use(express.static('dist'))
 
 let persons = [
     { 
@@ -87,30 +105,10 @@ app.post('/api/persons', (request, response) => {
     response.json(person)
 })
 
-const requestLogger = (request, response, next) => {
-  console.log('Method:', request.method)
-  console.log('Path:', request.path)
-  console.log('Body:', request.body)
-  console.log('---')
-  next()
-}
-app.use(requestLogger)
-
-// Middleware to handle unknown endpoints
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
-}
+} // Middleware to handle unknown endpoints
 app.use(unknownEndpoint)
-
-const cors = require('cors')
-app.use(cors())
-
-const morgan = require('morgan')
-morgan.token('post', (req) => {
-  return req.method === 'POST' ? JSON.stringify(req.body) : ''
-})
-// Custom morgan format to log POST request bodies
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
