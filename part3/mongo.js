@@ -7,25 +7,38 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2]
 
-const url = `mongodb+srv://yularossi:${password}@cluster0.tvcqor7.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+const url = `mongodb+srv://yularossi:${password}@cluster0.tvcqor7.mongodb.net/phonebookApp?retryWrites=true&w=majority&appName=Cluster0`
 
 mongoose.set('strictQuery',false)
 
 mongoose.connect(url)
 
-const noteSchema = new mongoose.Schema({
-  content: String,
-  important: Boolean,
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
 })
 
-const Note = mongoose.model('Note', noteSchema)
+const Person = mongoose.model('Person', personSchema)
 
-const note = new Note({
-  content: 'HTML is easy',
-  important: true,
-})
+if (process.argv.length > 3) {
+  const name = process.argv[3]
+  const number = process.argv[4]
 
-note.save().then(result => {
-  console.log('note saved!')
-  mongoose.connection.close()
-})
+  const person = new Person({
+    name: name,
+    number: number,
+  })
+
+  person.save().then(result => {
+    console.log(`added ${name} number ${number} to phonebook`)
+    mongoose.connection.close()
+  })
+} else {
+  console.log('phonebook:')
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      console.log(`${person.name} ${person.number}`)
+    })
+    mongoose.connection.close()
+  })
+}
