@@ -1,3 +1,4 @@
+require('dotenv').config() // Load environment variables from .env file
 const express = require('express')
 const app = express()
 const requestLogger = (request, response, next) => {
@@ -18,7 +19,7 @@ app.use(requestLogger)
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
 app.use(express.static('dist'))
 
-
+const Person = require('./models/person') // Import the Person model
 //DO NOT SAVE YOUR PASSWORD TO GITHUB
 if (process.argv.length < 3) {
   console.log('give password as argument')
@@ -45,27 +46,30 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  const person = persons.find(person => person.id === id)
-  response.json(person)
-
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  Person.findById(request.params.id)
+    .then(person => {
+      response.json(person)
+    })
 })
 
 app.get('/info', (request, response) => {
   const date = new Date()
-  const info = `<p>Phonebook has info for ${persons.length} people</p>
-                <p>${date}</p>`
-  response.send(info)
+  Person.countDocuments({}).then(count => {
+    const info = `<p>Phonebook has info for ${count} people</p>
+                  <p>${date}</p>`
+    response.send(info)
+  })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  persons = persons.filter(person => person.id !== id)
+  Person.findByIdAndDelete(person => person.id !== id)
+     .then(() => {
+      response.status(204).end()
+    })
+    .catch(error => {
+      response.status(500).send({ error: 'failed to delete person' })
+    })
 
   response.status(204).end()
 })
@@ -74,28 +78,33 @@ const generateId = () => {
   return Math.floor(Math.random() * 1000000)
 }
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', async (request, response) => {
     const body = request.body
 
     if (!body.name || !body.number) {
       return response.status(400).json({
         error: 'name or number missing'
       })
-    } else if (persons.some(person => person.name === body.name)) {
+    }
+
+    //Check for existing name in the database
+    const existingPerson = await Person.findOne({ name: body.name })
+    if (existingPerson) {
       return response.status(400).json({
         error: 'this name already exists in the phonebook'
       })
     }
 
-    const person = {
+    const person = new Person({
       // Generate a unique ID for the new person
       id: String(generateId()),
       name: body.name,
       number: body.number
-    }
+    })
 
-    persons = persons.concat(person)
-    response.json(person)
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
 })
 
 const unknownEndpoint = (request, response) => {
@@ -103,7 +112,7 @@ const unknownEndpoint = (request, response) => {
 } // Middleware to handle unknown endpoints
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001 // Use PORT from environment variables or default to 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
