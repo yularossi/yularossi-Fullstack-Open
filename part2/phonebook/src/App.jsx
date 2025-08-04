@@ -40,7 +40,7 @@ const App = () => {
       }, 4000)
     } else if (persons.some(person => person.name === newName) & persons.some(person => person.number != newNumber)) {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
-        personService.update(persons.find(person => person.name === newName).id, nameObject)
+        personService.update(persons.find(person => person.name === newName)._id, nameObject)
         .then(response => {
           console.log(response.data)
           setPersons(persons.map(person => person.name !== newName ? person : response.data))
@@ -86,19 +86,19 @@ const App = () => {
   }
 
   //funcion para eliminar a una persona
-  const deleteNumber = (id) => {
+  const deleteNumber = (_id) => {
     if (window.confirm(`Delete this person?`)) {
-      personService.deletePerson(id)
+      personService.deletePerson(_id)
         .then(() => {
-          console.log(`Deleted person with id ${id}`)
-          setPersons(persons.filter(person => person.id !== id))
+          console.log(`Deleted person with id ${_id}`)
+          setPersons(persons.filter(person => person._id !== _id))
           setNotificationMessage('Person deleted successfully')
           setTimeout(() => {
             setNotificationMessage(null)
           }, 4000)
         })
         .catch(error => {
-          console.error(`Error deleting person with id ${id}:`, error)
+          console.error(`Error deleting person with id ${_id}:`, error)
           setErrorMessage('Error deleting person')
           setTimeout(() => {
             setErrorMessage(null)

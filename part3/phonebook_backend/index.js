@@ -13,11 +13,11 @@ morgan.token('post', (req) => {
   return req.method === 'POST' ? JSON.stringify(req.body) : ''
 })
 
+app.use(express.static('dist'))
 app.use(express.json())
 app.use(requestLogger)
 // Custom morgan format to log POST request bodies
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
-app.use(express.static('dist'))
 
 const Person = require('./models/person') // Import the Person model
 //DO NOT SAVE YOUR PASSWORD TO GITHUB
@@ -45,11 +45,31 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => {
-      response.json(person)
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
     })
+    .catch(error => next(error)) // Pass error to the next middleware for handling
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const { number } = request.body
+
+  // Only update the number field
+  Person.findByIdAndUpdate( request.params.id, { number }, { new: true, runValidators: true, context: 'query' })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        response.json(updatedPerson)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -61,22 +81,17 @@ app.get('/info', (request, response) => {
   })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  Person.findByIdAndDelete(person => person.id !== id)
-     .then(() => {
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+     .then(result => {
       response.status(204).end()
     })
-    .catch(error => {
-      response.status(500).send({ error: 'failed to delete person' })
-    })
-
-  response.status(204).end()
+    .catch(error => next(error)) // Pass error to the next middleware for handling
 })
 
-const generateId = () => {
+/*const generateId = () => {
   return Math.floor(Math.random() * 1000000)
-}
+}*/
 
 app.post('/api/persons', async (request, response) => {
     const body = request.body
@@ -97,7 +112,6 @@ app.post('/api/persons', async (request, response) => {
 
     const person = new Person({
       // Generate a unique ID for the new person
-      id: String(generateId()),
       name: body.name,
       number: body.number
     })
@@ -107,10 +121,24 @@ app.post('/api/persons', async (request, response) => {
     })
 })
 
+// Middleware to handle unknown endpoints
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
-} // Middleware to handle unknown endpoints
+} 
 app.use(unknownEndpoint)
+
+//Middleware to handle errors
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001 // Use PORT from environment variables or default to 3001
 app.listen(PORT, () => {
