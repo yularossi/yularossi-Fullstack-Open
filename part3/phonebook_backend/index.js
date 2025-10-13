@@ -20,12 +20,6 @@ app.use(requestLogger)
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post'))
 
 const Person = require('./models/person') // Import the Person model
-//DO NOT SAVE YOUR PASSWORD TO GITHUB
-if (process.argv.length < 3) {
-  console.log('give password as argument')
-  process.exit(1)
-}
-const password = process.argv[2]
 
 app.get('/', (request, response) => {
     Person.find({}).then(persons => {
