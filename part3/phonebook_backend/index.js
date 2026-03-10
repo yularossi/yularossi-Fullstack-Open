@@ -52,10 +52,10 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const { number } = request.body
+  const { number, important } = request.body
 
   // Only update the number field
-  Person.findByIdAndUpdate( request.params.id, { number }, { new: true, runValidators: true, context: 'query' })
+  Person.findByIdAndUpdate( request.params.id, { number, important }, { new: true, runValidators: true, context: 'query' })
     .then(updatedPerson => {
       if (updatedPerson) {
         response.json(updatedPerson)
@@ -87,7 +87,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
   return Math.floor(Math.random() * 1000000)
 }*/
 
-app.post('/api/persons', async (request, response) => {
+app.post('/api/persons', async (request, response, next) => {
     const body = request.body
 
     if (!body.name || !body.number) {
@@ -113,6 +113,8 @@ app.post('/api/persons', async (request, response) => {
     person.save().then(savedPerson => {
       response.json(savedPerson)
     })
+
+    .catch(error => next(error))
 })
 
 // Middleware to handle unknown endpoints
@@ -127,7 +129,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
