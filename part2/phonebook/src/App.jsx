@@ -18,10 +18,17 @@ const App = () => {
   useEffect(() => {
     console.log('effect')
     personService.getAll()
-        .then(response => {
-          console.log('promise fulfilled')
-          setPersons(response.data)
-        })  
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+      .catch(error => {
+        console.error('Error fetching persons:', error)
+        setErrorMessage('Could not fetch persons from server')
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 4000)
+      })
   }, [])
   console.log('render', persons.length, 'persons')
   
@@ -38,51 +45,69 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null)
       }, 4000)
-    } else if (persons.some(person => person.name === newName) & persons.some(person => person.number != newNumber)) {
-      if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
-        personService.update(persons.find(person => person.name === newName).id, nameObject)
-        .then(response => {
-          console.log(response.data)
-          setPersons(persons.map(person => person.name !== newName ? person : response.data))
-          setNewName('')
-          setNewNumber('')
-          setNotificationMessage(`Number updated for ${newName}`)
-          setTimeout(() => {
-            setNotificationMessage(null)
-          }, 4000)
-        })
-        .catch(error => {
-          setErrorMessage(`Error updating ${newName}'s number`)
-          setTimeout(() => {
-            setErrorMessage(null) 
-          }, 4000)
-        })
+      return
+    }
+
+    const existingPerson = persons.find(person => person.name === newName)
+
+    if (existingPerson) {
+      if (existingPerson.number !== newNumber) {
+        if (window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
+          personService.update(existingPerson.id, nameObject)
+            .then(response => {
+              console.log(response.data)
+              setPersons(persons.map(person => person.id !== existingPerson.id ? person : response.data))
+              setNewName('')
+              setNewNumber('')
+              setNotificationMessage(`Number updated for ${newName}`)
+              setTimeout(() => {
+                setNotificationMessage(null)
+              }, 4000)
+            })
+            .catch(error => {
+              const message = error.response?.data?.error || error.message || `Error updating ${newName}'s number`
+              setErrorMessage(message)
+              setTimeout(() => {
+                setErrorMessage(null)
+              }, 4000)
+            })
+        }
+      } else {
+        setErrorMessage(`${newName} is already in the phonebook with that number`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 4000)
       }
-    } else if (persons.some(person => person.number === newNumber)) {
+      return
+    }
+
+    if (persons.some(person => person.number === newNumber)) {
       setErrorMessage(`Number ${newNumber} is already in use`)
       setTimeout(() => {
         setErrorMessage(null)
       }, 4000)
-    } else {
-      // Add the new person to the server
-      personService.create(nameObject)
+      return
+    }
+
+    // Add the new person to the server
+    personService.create(nameObject)
       .then(response => {
         console.log(response.data)
         setPersons(persons.concat(response.data))
         setNewName('')
         setNewNumber('')
         setNotificationMessage(`${newName} has been added to phonebook`)
-          setTimeout(() => {
-            setNotificationMessage(null)
-          }, 4000)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 4000)
       })
       .catch(error => {
-        setErrorMessage(error.response.data.error)
+        const message = error.response?.data?.error || error.message || 'Error adding person'
+        setErrorMessage(message)
         setTimeout(() => {
           setErrorMessage(null)
         }, 4000)
       })
-    }
   }
 
   //funcion para eliminar a una persona
@@ -91,7 +116,7 @@ const App = () => {
       personService.deletePerson(_id)
         .then(() => {
           console.log(`Deleted person with id ${_id}`)
-          setPersons(persons.filter(person => person._id !== _id))
+          setPersons(persons.filter(person => person.id !== _id))
           setNotificationMessage('Person deleted successfully')
           setTimeout(() => {
             setNotificationMessage(null)
@@ -99,7 +124,8 @@ const App = () => {
         })
         .catch(error => {
           console.error(`Error deleting person with id ${_id}:`, error)
-          setErrorMessage('Error deleting person')
+          const message = error.response?.data?.error || 'Error deleting person'
+          setErrorMessage(message)
           setTimeout(() => {
             setErrorMessage(null)
           }, 4000)
