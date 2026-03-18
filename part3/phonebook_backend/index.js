@@ -77,7 +77,7 @@ app.get('/info', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-     .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error)) // Pass error to the next middleware for handling
@@ -120,7 +120,7 @@ app.post('/api/persons', async (request, response, next) => {
 // Middleware to handle unknown endpoints
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
-} 
+}
 app.use(unknownEndpoint)
 
 //Middleware to handle errors
