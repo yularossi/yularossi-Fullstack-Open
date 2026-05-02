@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import BlogForm from './components/BlogForm'
 import BlogList from './components/BlogList'
+import Notification from './components/Notification'
+import blogService from './services/blogs'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState('')
 
   useEffect(() => {
     fetchBlogs()
@@ -14,13 +17,12 @@ const App = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/blogs')
-      if (!response.ok) throw new Error('Failed to fetch blogs')
-      const data = await response.json()
+      const data = await blogService.getAll()
       setBlogs(data)
-      setError(null)
+      setMessage(null)
     } catch (err) {
-      setError(err.message)
+      setMessage(err.message)
+      setMessageType('error')
     } finally {
       setLoading(false)
     }
@@ -28,31 +30,21 @@ const App = () => {
 
   const handleAddBlog = async (newBlog) => {
     try {
-      const response = await fetch('/api/blogs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newBlog)
-      })
-
-      if (!response.ok) throw new Error('Failed to create blog')
-      
-      const addedBlog = await response.json()
-      setBlogs([...blogs, addedBlog])
-      setError(null)
+      const addedBlog = await blogService.create(newBlog)
+      setBlogs(blogs.concat(addedBlog))
+      setMessage('Blog added successfully!')
+      setMessageType('success')
     } catch (err) {
-      setError(err.message)
+      setMessage(err.message)
+      setMessageType('error')
     }
   }
 
   return (
     <div className="container">
       <h1>📚 Bloglist</h1>
-      
-      {error && (
-        <div style={{ color: 'red', marginBottom: '20px' }}>
-          Error: {error}
-        </div>
-      )}
+
+      <Notification message={message} type={messageType} />
 
       <BlogForm onAddBlog={handleAddBlog} />
 
