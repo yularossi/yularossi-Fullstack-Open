@@ -91,3 +91,59 @@ describe('favorite blog', () => {
         })
     })
 })
+
+describe('most blogs', () => {
+    test('of empty list is null', () => {
+        const blogs = []
+        const result = listHelper.mostBlogs(blogs)
+        assert.strictEqual(result, null)
+    })
+    test('when list has only one blog equals that author', () => {
+        const blogs = [
+            {
+                title: 'Go To Statement Considered Harmful',
+                author: 'Edsger W. Dijkstra',
+                url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Statement_Con sidered_Harmful.html',
+                likes: 5
+            }
+        ]
+        const result = listHelper.mostBlogs(blogs)
+        assert.deepStrictEqual(result, {
+            author: 'Edsger W. Dijkstra',
+            blogs: 1
+        })
+    })
+    test('of a bigger list is found right', () => {
+        const blogs = [
+            {
+                title: 'Go To Statement Considered Harmful',
+                author: 'Edsger W. Dijkstra',
+                url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Statement_Con sidered_Harmful.html',
+                likes: 5
+            },
+            {
+                title: 'Python for Data Analysis',
+                author: 'Wes McKinney',
+                url: 'https://wesmckinney.com/blog/python-for-data-analysis/',
+                likes: 10
+            },
+            {
+                title: 'Effective Python',
+                author: 'John Doe',
+                url: 'https://example.com/effective-python',
+                likes: 8
+            },
+            {
+                title: 'Data Science Handbook',
+                author: 'Wes McKinney',
+                url: 'https://jakevdp.github.io/PythonDataScienceHandbook/',
+                likes: 15
+            }
+        ]
+        const result = listHelper.mostBlogs(blogs)
+        assert.deepStrictEqual(result, {
+            author: 'Wes McKinney',
+            blogs: 2
+        })
+    })
+})
