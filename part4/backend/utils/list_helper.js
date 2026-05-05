@@ -37,9 +37,26 @@ const mostBlogs = (blogs) => {
     }
 }
 
+const mostLikes = (blogs) => {
+    if (blogs.length === 0) {
+        return null
+    } else {
+        const authorLikes = {}
+        blogs.forEach(blog => {
+            authorLikes[blog.author] = (authorLikes[blog.author] || 0) + blog.likes
+        })
+        const mostLiked = Object.keys(authorLikes).reduce((most, author) => {
+            return authorLikes[author] > most.likes ? { author, likes: authorLikes[author] } : most
+        }, { author: null, likes: 0 })
+
+        return mostLiked
+    }
+}
+
 module.exports = {
     dummy,
     totalLikes,
     favoriteBlog,
-    mostBlogs
+    mostBlogs,
+    mostLikes
 }
