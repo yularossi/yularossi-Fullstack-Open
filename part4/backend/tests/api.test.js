@@ -58,6 +58,28 @@ describe ('id field', () => {
   })
 })
 
+describe('creating a new blog', () => {
+  test('a valid blog can be added', async () => {
+    const responseAtStart = await api.get('/api/blogs') // Get the initial number of blogs
+    
+    const newBlog = {
+      title: 'New Blog',
+      author: 'John Doe',
+      url: 'https://newblog.com',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const responseAtEnd = await api.get('/api/blogs')
+    assert.strictEqual(responseAtEnd.body.length, responseAtStart.body.length + 1, 'Blog count did not increase by 1')
+  })
+})
+
 after(async () => {
     await mongoose.connection.close()
   })
