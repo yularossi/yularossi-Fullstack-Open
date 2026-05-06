@@ -80,6 +80,26 @@ describe('creating a new blog', () => {
   })
 })
 
+describe('likes default to 0', () => {
+  test('likes default to 0 if not provided', async () => {
+    const newBlog = {
+      title: 'Blog without likes',
+      author: 'John Doe',
+      url: 'https://newblog.com'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+    const addedBlog = response.body.find(blog => blog.title === newBlog.title)
+    assert.strictEqual(addedBlog.likes, 0, 'Likes do not default to 0')
+  })
+})
+
 after(async () => {
     await mongoose.connection.close()
   })
