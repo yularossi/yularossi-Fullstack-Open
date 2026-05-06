@@ -100,6 +100,32 @@ describe('likes default to 0', () => {
   })
 })
 
+describe('blog without title or url', () => {
+  test('blog without title is not added', async () => {
+    const newBlog = {
+      author: 'John Doe',
+      url: 'https://newblog.com'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+  })
+
+  test('blog without url is not added', async () => {
+    const newBlog = {
+      title: 'Blog without url',
+      author: 'John Doe'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+  })
+})
+
 after(async () => {
     await mongoose.connection.close()
   })
