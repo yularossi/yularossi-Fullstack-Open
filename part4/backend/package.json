@@ -9,7 +9,7 @@
     "build:ui": "rm -rf dist && cd ../frontend && npm run build && cp -r dist ../backend",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
     "lint": "eslint .",
-    "test": "node --test"
+    "test": "NODE_ENV=test node --test 'tests/**/*.test.js'"
   },
   "dependencies": {
     "cors": "^2.8.5",
