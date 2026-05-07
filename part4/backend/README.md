@@ -1,6 +1,6 @@
 # Part 4 - Bloglist backend
 
-Backend for the Fullstack Open exercise 4.1-4.2.
+Backend for the Fullstack Open exercise 4.1-4.23.
 
 ## Uso
 
@@ -13,3 +13,5 @@ Backend for the Fullstack Open exercise 4.1-4.2.
 
 - `GET /api/blogs` - Obtener todos los blogs
 - `POST /api/blogs` - Crear un nuevo blog
+- `GET /api/users` - Obtener todos los usuarios (sin password hash)
+- `POST /api/users` - Crear un nuevo usuario con password hasheado

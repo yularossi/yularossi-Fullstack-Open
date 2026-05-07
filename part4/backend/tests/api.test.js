@@ -4,12 +4,12 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
-const config = require('../utils/config')
+const User = require('../models/user')
 const api = supertest(app)
 
 beforeEach(async () => {
-    // Clear database before each test
     await Blog.deleteMany({})
+    await User.deleteMany({})
     
     // Add test data
     const testBlogs = [
@@ -155,6 +155,77 @@ describe('updating a blog', () => {
   })
 })
 
-after(async () => {
-    await mongoose.connection.close()
+describe('user API', () => {
+  test('users are returned as json', async () => {
+    await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
   })
+
+  test('a valid user can be created', async () => {
+    const usersAtStart = await User.find({})
+
+    const newUser = {
+      username: 'root',
+      name: 'Superuser',
+      password: 'sekret'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await User.find({})
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
+
+    const usernames = usersAtEnd.map((user) => user.username)
+    assert(usernames.includes(newUser.username))
+  })
+
+  test('creation fails with proper statuscode and message if username is already taken', async () => {
+    const user = {
+      username: 'root',
+      name: 'Superuser',
+      password: 'sekret'
+    }
+
+    await api.post('/api/users').send(user).expect(201)
+
+    const duplicateUser = {
+      username: 'root',
+      name: 'Another user',
+      password: 'another-secret'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(duplicateUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    assert(result.body.error.includes('expected `username` to be unique'))
+  })
+
+  test('creation fails if password is too short', async () => {
+    const invalidUser = {
+      username: 'shortpwd',
+      name: 'Short Password',
+      password: '12'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(invalidUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    assert(result.body.error.includes('password must be at least 3 characters long'))
+  })
+})
+
+after(async () => {
+  await mongoose.connection.close()
+})
