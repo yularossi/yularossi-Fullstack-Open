@@ -1,17 +1,23 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
-    const blogs = await Blog.find({})
+    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
     response.json(blogs)
   } catch (error) {
     next(error)
   }
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
   const body = request.body
+  const user = request.user
+
+  if (!user) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
 
   if (!body.title || !body.url) {
     return response.status(400).json({ error: 'title or url missing' })
@@ -21,20 +27,39 @@ blogsRouter.post('/', async (request, response, next) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes || 0
+    likes: body.likes || 0,
+    user: user._id
   })
 
   try {
     const savedBlog = await blog.save()
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
     response.status(201).json(savedBlog)
   } catch (error) {
     next(error)
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
   try {
+    const user = request.user
+    if (!user) {
+      return response.status(401).json({ error: 'token invalid' })
+    }
+
+    const blog = await Blog.findById(request.params.id)
+    if (!blog) {
+      return response.status(404).json({ error: 'blog not found' })
+    }
+
+    if (blog.user.toString() !== user.id.toString()) {
+      return response.status(403).json({ error: 'only creator can delete blog' })
+    }
+
     await Blog.findByIdAndDelete(request.params.id)
+    user.blogs = user.blogs.filter(blogId => blogId.toString() !== request.params.id)
+    await user.save()
     response.status(204).end()
   } catch (error) {
     next(error)
