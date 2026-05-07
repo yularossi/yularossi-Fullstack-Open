@@ -126,6 +126,35 @@ describe('blog without title or url', () => {
   })
 })
 
+describe('deleting a blog', () => {
+  test('a blog can be deleted', async () => {
+    const responseAtStart = await api.get('/api/blogs')
+    const blogToDelete = responseAtStart.body[0]
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+    const responseAtEnd = await api.get('/api/blogs')
+    assert.strictEqual(responseAtEnd.body.length, responseAtStart.body.length - 1, 'Blog count did not decrease by 1')
+  })
+})
+
+describe('updating a blog', () => {
+  test('a blog can be updated', async () => {
+    const responseAtStart = await api.get('/api/blogs')
+    const blogToUpdate = responseAtStart.body[0]
+    const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 }
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .expect(200)
+
+    const responseAtEnd = await api.get('/api/blogs')
+    const updatedBlogFromResponse = responseAtEnd.body.find(blog => blog.id === blogToUpdate.id)
+    assert.strictEqual(updatedBlogFromResponse.likes, updatedBlog.likes, 'Blog likes were not updated')
+  })
+})
+
 after(async () => {
     await mongoose.connection.close()
   })
