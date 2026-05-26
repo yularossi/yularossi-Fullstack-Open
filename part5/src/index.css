@@ -1,0 +1,87 @@
+:root {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #222;
+  background: #f9f9fb;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(17, 17, 17, 0.08);
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #444;
+  background: #f4f4f7;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  font: inherit;
+}
+
+input,
+textarea {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+form > div {
+  margin-bottom: 1rem;
+}
+
+.notification {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.notification.success {
+  background: #e6ffed;
+  color: #1d5d2d;
+  border-color: #8fce94;
+}
+
+.notification.error {
+  background: #ffe6e6;
+  color: #7a1d1d;
+  border-color: #f1a3a3;
+}
+
+.blog-item {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.blog-item strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.blog-form {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px dashed #bbb;
+  border-radius: 10px;
+  background: #f7f7ff;
+}
