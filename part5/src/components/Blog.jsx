@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import blogService from '../services/blogs.js'
 
 const Blog = ({ blog }) => {
 
@@ -16,6 +17,18 @@ const Blog = ({ blog }) => {
   }
   const detailsStyle = { display: detailsVisible ? '' : 'none' }
 
+  // Implementation for handling like action
+  const [likes, setLikes] = useState(blog.likes)
+  const handleLike = () => {
+    setLikes(likes + 1)
+    blogService.like(blog._id || blog.id, { 
+      title: blog.title, 
+      author: blog.author, 
+      url: blog.url, 
+      likes: likes + 1 
+    })
+  }
+
   return (
     <div style={blogStyle} className="blog">
       <div>
@@ -31,8 +44,8 @@ const Blog = ({ blog }) => {
           </a>
         </div>
         <div>
-          likes: {blog.likes}
-          <button>like</button>
+          likes: {likes}
+          <button onClick={handleLike}>like</button>
         </div>
         <div>{blog.author}</div>
       </div>
