@@ -9,9 +9,10 @@ import Notification from './components/Notification.jsx'
 const STORAGE_KEY = 'loggedBloglistUser'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState(null)
+  const [blogs, setBlogs] = useState([])
+  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem(STORAGE_KEY)
@@ -67,6 +68,15 @@ const App = () => {
     }
   }
 
+  const handleLike = async (id, updatedBlog) => {
+    try {
+      const returnedBlog = await blogService.like(id, updatedBlog)
+      setBlogs(blogs.map((blog) => (blog.id === returnedBlog.id ? returnedBlog : blog)))
+    } catch (error) {
+      showNotification('Could not update likes', 'error')
+    }
+  }
+
   if (!user) {
     return (
       <div className="app">
@@ -86,8 +96,8 @@ const App = () => {
       </p>
       <BlogForm createBlog={addBlog} />
       <div className="blog-list">
-        {blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
+        {sortedBlogs.map((blog) => (
+          <Blog key={blog.id} blog={blog} onLike={handleLike} />
         ))}
       </div>
     </div>

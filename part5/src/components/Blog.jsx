@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import blogService from '../services/blogs.js'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, onLike }) => {
 
   const blogStyle = {
     paddingTop: 10,
@@ -19,14 +19,20 @@ const Blog = ({ blog }) => {
 
   // Implementation for handling like action
   const [likes, setLikes] = useState(blog.likes)
-  const handleLike = () => {
-    setLikes(likes + 1)
-    blogService.like(blog._id || blog.id, { 
-      title: blog.title, 
-      author: blog.author, 
-      url: blog.url, 
-      likes: likes + 1 
-    })
+  const handleLike = async () => {
+    const updatedLikes = likes + 1
+    setLikes(updatedLikes)
+
+    const updatedBlog = {
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: updatedLikes
+    }
+
+    if (onLike) {
+      await onLike(blog.id || blog._id, updatedBlog)
+    }
   }
 
   return (
