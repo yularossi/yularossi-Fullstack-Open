@@ -77,6 +77,16 @@ const App = () => {
     }
   }
 
+  const handleRemove = async (id) => {
+    try {
+      await blogService.removeBlog(id)
+      setBlogs(blogs.filter((blog) => blog.id !== id && blog._id !== id))
+      showNotification('Blog removed', 'success')
+    } catch (error) {
+      showNotification('Could not remove blog', 'error')
+    }
+  }
+
   if (!user) {
     return (
       <div className="app">
@@ -97,7 +107,13 @@ const App = () => {
       <BlogForm createBlog={addBlog} />
       <div className="blog-list">
         {sortedBlogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} onLike={handleLike} />
+          <Blog
+            key={blog.id}
+            blog={blog}
+            onLike={handleLike}
+            onRemove={handleRemove}
+            currentUser={user}
+          />
         ))}
       </div>
     </div>

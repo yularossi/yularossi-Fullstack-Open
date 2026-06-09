@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import blogService from '../services/blogs.js'
 
-const Blog = ({ blog, onLike }) => {
+const Blog = ({ blog, onLike, onRemove, currentUser }) => {
 
   const blogStyle = {
     paddingTop: 10,
@@ -35,6 +34,25 @@ const Blog = ({ blog, onLike }) => {
     }
   }
 
+  const canRemove = Boolean(
+    onRemove &&
+    currentUser &&
+    blog.user &&
+    (
+      blog.user.username === currentUser.username ||
+      blog.user.name === currentUser.name ||
+      blog.user.id === currentUser.id ||
+      blog.user._id === currentUser.id ||
+      blog.user === currentUser.id
+    )
+  )
+
+  const handleRemove = () => {
+    if (onRemove && window.confirm(`Remove blog '${blog.title}' by ${blog.author}?`)) {
+      onRemove(blog.id || blog._id)
+    }
+  }
+
   return (
     <div style={blogStyle} className="blog">
       <div>
@@ -54,6 +72,9 @@ const Blog = ({ blog, onLike }) => {
           <button onClick={handleLike}>like</button>
         </div>
         <div>{blog.author}</div>
+        {canRemove && (
+          <button onClick={handleRemove}>remove</button>
+        )}
       </div>
     </div>
   )
