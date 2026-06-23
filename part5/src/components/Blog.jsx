@@ -31,6 +31,11 @@ const Blog = ({ blog, onLike, onRemove, currentUser }) => {
     }
   }
 
+  const normalizeUserId = (user) => {
+    if (!user) return null
+    return String(user.id || user._id || user)
+  }
+
   const canRemove = Boolean(
     onRemove &&
     currentUser &&
@@ -38,9 +43,7 @@ const Blog = ({ blog, onLike, onRemove, currentUser }) => {
     (
       blog.user.username === currentUser.username ||
       blog.user.name === currentUser.name ||
-      blog.user.id === currentUser.id ||
-      blog.user._id === currentUser.id ||
-      blog.user === currentUser.id
+      normalizeUserId(blog.user) === normalizeUserId(currentUser)
     )
   )
 
