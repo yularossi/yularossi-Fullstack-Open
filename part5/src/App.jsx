@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
 import blogService from './services/blogs.js'
 import loginService from './services/login.js'
-import Blog from './components/Blog.jsx'
-import BlogForm from './components/BlogForm.jsx'
+import Blogs from './components/Blogs.jsx'
+import BlogDetail from './components/BlogDetail.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import Notification from './components/Notification.jsx'
+import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom'
 
 const STORAGE_KEY = 'loggedBloglistUser'
 
 const App = () => {
   const [user, setUser] = useState(null)
+  const navigate = useNavigate()
   const [notification, setNotification] = useState(null)
   const [blogs, setBlogs] = useState([])
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
@@ -24,8 +26,6 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    if (!user) return
-
     blogService.getAll().then((blogs) => {
       setBlogs(blogs)
     })
@@ -45,6 +45,7 @@ const App = () => {
       blogService.setToken(user.token)
       setUser(user)
       showNotification(`Welcome ${user.name}`, 'success')
+      navigate('/')
     } catch (error) {
       showNotification('Wrong username or password', 'error')
     }
@@ -56,6 +57,7 @@ const App = () => {
     setBlogs([])
     blogService.setToken(null)
     showNotification('Logged out', 'success')
+    navigate('/')
   }
 
   const addBlog = async (blogObject) => {
@@ -80,42 +82,52 @@ const App = () => {
   const handleRemove = async (id) => {
     try {
       await blogService.removeBlog(id)
-      setBlogs(blogs.filter((blog) => blog.id !== id && blog._id !== id))
+      setBlogs(blogs.filter((blog) => (blog.id || blog._id) !== id))
       showNotification('Blog removed', 'success')
     } catch (error) {
       showNotification('Could not remove blog', 'error')
     }
   }
 
-  if (!user) {
-    return (
-      <div className="app">
-        <h2>Log in to application</h2>
-        <Notification notification={notification} />
-        <LoginForm onLogin={handleLogin} />
-      </div>
-    )
-  }
-
   return (
     <div className="app">
-      <h2>Blogs</h2>
+      <nav>
+        <Link to="/">blogs</Link>{' | '}
+        {user ? (
+          <button onClick={handleLogout}>logout</button>
+        ) : (
+          <Link to="/login">login</Link>
+        )}
+      </nav>
       <Notification notification={notification} />
-      <p>
-        {user.name} logged in <button onClick={handleLogout}>logout</button>
-      </p>
-      <BlogForm createBlog={addBlog} />
-      <div className="blog-list">
-        {sortedBlogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            onLike={handleLike}
-            onRemove={handleRemove}
-            currentUser={user}
-          />
-        ))}
-      </div>
+
+      <Routes>
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" replace /> : <LoginForm onLogin={handleLogin} />}
+        />
+        <Route
+          path="/"
+          element={
+            <Blogs
+              user={user}
+              blogs={sortedBlogs}
+              addBlog={addBlog}
+            />
+          }
+        />
+        <Route
+          path="/blogs/:id"
+          element={
+            <BlogDetail
+              blogs={sortedBlogs}
+              onLike={handleLike}
+              onRemove={handleRemove}
+              user={user}
+            />
+          }
+        />
+      </Routes>
     </div>
   )
 }
