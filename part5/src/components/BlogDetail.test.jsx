@@ -39,8 +39,7 @@ test('shows blog info and likes to unauthenticated users without buttons', () =>
 
   expect(screen.getByText('Test Blog')).toBeInTheDocument()
   expect(screen.getByText('http://example.com')).toBeInTheDocument()
-  expect(screen.getByText('likes:')).toBeInTheDocument()
-  expect(screen.getByText('5')).toBeInTheDocument()
+  expect(screen.getByText(/likes:\s*5/)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /like/i })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /remove/i })).not.toBeInTheDocument()
 })

@@ -7,6 +7,8 @@ import BlogForm from './components/BlogForm.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import Notification from './components/Notification.jsx'
 import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom'
+import { Container, Typography } from '@mui/material'
+import { AppBar, Toolbar, Button } from '@mui/material'
 
 const STORAGE_KEY = 'loggedBloglistUser'
 
@@ -64,6 +66,11 @@ const App = () => {
   const addBlog = async (blogObject) => {
     try {
       const returnedBlog = await blogService.create(blogObject)
+      returnedBlog.user = {
+        username: user?.username,
+        name: user?.name,
+        id: user?.id || user?._id
+      }
       setBlogs(blogs.concat(returnedBlog))
       showNotification(`A new blog '${returnedBlog.title}' by ${returnedBlog.author} added`, 'success')
     } catch (error) {
@@ -90,56 +97,73 @@ const App = () => {
     }
   }
 
-  return (
-    <div className="app">
-      <nav>
-        <Link to="/">Blogs</Link>{' | '}
-        <Link to="/blogForm">New Blog</Link>{' | '}
-        {user ? (
-          <button onClick={handleLogout}>Logout</button>
-        ) : (
-          <Link to="/login">Login</Link>
-        )}
-      </nav>
-      <Notification notification={notification} />
+  const style = { '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }
 
-      <Routes>
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <LoginForm onLogin={handleLogin} />}
-        />
-        <Route
-          path="/"
-          element={
-            <Blogs
-              user={user}
-              blogs={sortedBlogs}
-            />
-          }
-        />
-        <Route
-          path="/blogForm"
-          element={
-            user ? (
-              <BlogForm createBlog={addBlog} />
+  return (
+    <Container>
+      <div style={{ marginBottom: '20px' }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+              Blog App
+            </Typography>
+            <Button color="inherit" component={Link} to="/" sx={style}>
+              Home
+            </Button>
+            <Button color="inherit" component={Link} to="/blogForm" sx={style}>
+              New Blog
+            </Button>
+            {user ? (
+              <Button color="inherit" onClick={handleLogout} sx={style}>
+                Logout
+              </Button>
             ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/blogs/:id"
-          element={
-            <BlogDetail
-              blogs={sortedBlogs}
-              onLike={handleLike}
-              onRemove={handleRemove}
-              user={user}
-            />
-          }
-        />
-      </Routes>
-    </div>
+              <Button color="inherit" component={Link} to="/login" sx={style}>
+                Login
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
+        <Notification notification={notification} />
+
+        <Routes>
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/" replace /> : <LoginForm onLogin={handleLogin} />}
+          />
+          <Route
+            path="/"
+            element={
+              <Blogs
+                user={user}
+                blogs={sortedBlogs}
+              />
+            }
+          />
+          <Route
+            path="/blogForm"
+            element={
+              user ? (
+                <BlogForm createBlog={addBlog} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/blogs/:id"
+            element={
+              <BlogDetail
+                blogs={sortedBlogs}
+                onLike={handleLike}
+                onRemove={handleRemove}
+                user={user}
+              />
+            }
+          />
+        </Routes>
+      </div>
+    </Container>
   )
 }
 
