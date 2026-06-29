@@ -30,7 +30,8 @@ const BlogDetail = ({ blogs, onLike, onRemove, user }) => {
 
   const normalizeUserId = (user) => {
     if (!user) return null
-    return String(user.id || user._id || user)
+    if (user.id || user._id) return String(user.id || user._id)
+    return null
   }
 
   const canRemove = Boolean(
@@ -40,7 +41,7 @@ const BlogDetail = ({ blogs, onLike, onRemove, user }) => {
     (
       blog.user.username === user.username ||
       blog.user.name === user.name ||
-      normalizeUserId(blog.user) === normalizeUserId(user)
+      (normalizeUserId(blog.user) && normalizeUserId(blog.user) === normalizeUserId(user))
     )
   )
 
@@ -64,7 +65,7 @@ const BlogDetail = ({ blogs, onLike, onRemove, user }) => {
         {' '}{user && <button onClick={handleLike}>Like</button>}
       </p>
       <p>Added by {blog.author}</p>
-      {canRemove && <button onClick={handleRemove}>Remove</button>}
+      {canRemove && <button onClick={handleRemove}>Remove</button>} <button onClick={() => navigate('/')}>Back</button>
     </div>
   )
 }

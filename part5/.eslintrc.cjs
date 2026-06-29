@@ -2,6 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es2024: true,
+    vitest: true,
   },
   parserOptions: {
     ecmaVersion: 'latest',

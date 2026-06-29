@@ -11,8 +11,10 @@ const LoginForm = ({ onLogin }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
+    <div>
+      <h2>Log in to application</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
         <label>
           username
           <input
@@ -36,6 +38,7 @@ const LoginForm = ({ onLogin }) => {
       </div>
       <button type="submit">Login</button>
     </form>
+  </div>
   )
 }
 
