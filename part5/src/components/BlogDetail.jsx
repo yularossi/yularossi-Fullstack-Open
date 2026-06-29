@@ -61,10 +61,10 @@ const BlogDetail = ({ blogs, onLike, onRemove, user }) => {
       </p>
       <p>
         likes: <span>{likes}</span>
-        {user && <button onClick={handleLike}>like</button>}
+        {' '}{user && <button onClick={handleLike}>Like</button>}
       </p>
       <p>Added by {blog.author}</p>
-      {canRemove && <button onClick={handleRemove}>remove</button>}
+      {canRemove && <button onClick={handleRemove}>Remove</button>}
     </div>
   )
 }

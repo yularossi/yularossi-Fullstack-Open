@@ -3,6 +3,7 @@ import blogService from './services/blogs.js'
 import loginService from './services/login.js'
 import Blogs from './components/Blogs.jsx'
 import BlogDetail from './components/BlogDetail.jsx'
+import BlogForm from './components/BlogForm.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import Notification from './components/Notification.jsx'
 import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom'
@@ -92,11 +93,12 @@ const App = () => {
   return (
     <div className="app">
       <nav>
-        <Link to="/">blogs</Link>{' | '}
+        <Link to="/">Blogs</Link>{' | '}
+        <Link to="/blogForm">New Blog</Link>{' | '}
         {user ? (
-          <button onClick={handleLogout}>logout</button>
+          <button onClick={handleLogout}>Logout</button>
         ) : (
-          <Link to="/login">login</Link>
+          <Link to="/login">Login</Link>
         )}
       </nav>
       <Notification notification={notification} />
@@ -112,8 +114,17 @@ const App = () => {
             <Blogs
               user={user}
               blogs={sortedBlogs}
-              addBlog={addBlog}
             />
+          }
+        />
+        <Route
+          path="/blogForm"
+          element={
+            user ? (
+              <BlogForm createBlog={addBlog} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route
