@@ -1,4 +1,4 @@
-﻿import Display from './components/Display'
+import Display from './components/Display'
 import Controls from './components/Controls'
 
 const App = () => {

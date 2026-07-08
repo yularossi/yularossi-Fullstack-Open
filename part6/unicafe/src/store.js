@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand'
+import { create } from 'zustand'
 import { shallow } from 'zustand/shallow'
 
 // Flat store: numeric counts at top-level and named action functions.
@@ -48,20 +48,3 @@ export const useStatsStore = create(set => ({
     }
   }),
 }))
-
-// Selector for display values (use shallow to avoid causing excessive rerenders)
-export const useStats = () => useStatsStore(state => ({
-  all: state.all,
-  good: state.good,
-  bad: state.bad,
-  neutral: state.neutral,
-  average: state.average,
-  positive: state.positive,
-}), shallow)
-
-// Selector that maps to action functions but keeps names the Controls component expects
-export const useStatsControls = () => useStatsStore(state => ({
-  good: state.addGood,
-  bad: state.addBad,
-  neutral: state.addNeutral,
-}), shallow)

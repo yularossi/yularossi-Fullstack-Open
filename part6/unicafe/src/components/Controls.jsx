@@ -1,4 +1,4 @@
-import { useStatsStore } from './store'
+import { useStatsStore } from '../store'
 
 const Controls = () => {
   const good = useStatsStore(state => state.addGood)

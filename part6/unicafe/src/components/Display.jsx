@@ -1,4 +1,4 @@
-import { useStatsStore } from './store'
+import { useStatsStore } from '../store'
 
 const Display = () => {
   const all = useStatsStore(state => state.all)
