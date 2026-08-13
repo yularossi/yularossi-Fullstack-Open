@@ -1,0 +1,19 @@
+{
+  "anecdotes": [
+    {
+      "id": "0",
+      "text": "If it hurts, do it more often.",
+      "votes": 1
+    },
+    {
+      "id": "23e8",
+      "text": "One miss is a mistake, a second miss is the start of a new habit.",
+      "votes": 2
+    },
+    {
+      "id": "36d4",
+      "text": "blah blah blah",
+      "votes": 0
+    }
+  ]
+}

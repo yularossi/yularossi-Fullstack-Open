@@ -1,34 +1,69 @@
 import { create } from 'zustand'
 
-const initialAnecdotes = [
-  'If it hurts, do it more often.',
-  'Adding manpower to a late software project makes it later!',
-  'The first 90 percent of the code accounts for the first 10 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-  'Premature optimization is the root of all evil.',
-  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
-]
+const API_URL = 'http://localhost:3001/anecdotes'
 
-export const useAnecdoteStore = create(set => ({
-  anecdotes: initialAnecdotes.map((text, id) => ({ id, text, votes: 0 })),
+export const useAnecdoteStore = create((set, get) => ({
+  anecdotes: [],
   filter: '',
 
-  addVote: (id) => set(state => ({
-    anecdotes: state.anecdotes.map(anecdote =>
-      anecdote.id === id ? { ...anecdote, votes: anecdote.votes + 1 } : anecdote
-    )
-  })),
+  initAnecdotes: async () => {
+    try {
+      const res = await fetch(API_URL)
+      const data = await res.json()
+      set({ anecdotes: data })
+    } catch (error) {
+      console.error('Failed to fetch anecdotes', error)
+    }
+  },
 
-  addAnecdote: (text) => set(state => ({
-    anecdotes: [
-      ...state.anecdotes,
-      {
-        id: Math.max(...state.anecdotes.map(a => a.id), -1) + 1,
-        text,
-        votes: 0
+  addVote: async (id) => {
+    const anecdote = get().anecdotes.find(a => String(a.id) === String(id))
+    if (!anecdote) return
+    const newVotes = Number(anecdote.votes || 0) + 1
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ votes: newVotes })
+      })
+      if (!res.ok) {
+        console.error('Server returned', res.status, res.statusText)
+        // Try to re-sync anecdotes from server
+        await get().initAnecdotes()
+        return null
       }
-    ]
-  })),
+      const data = await res.json()
+      set(state => ({ anecdotes: state.anecdotes.map(a => String(a.id) === String(id) ? data : a) }))
+      return data
+    } catch (error) {
+      console.error('Failed to update vote', error)
+      await get().initAnecdotes()
+    }
+  },
+
+  addAnecdote: async (text) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, votes: 0 })
+      })
+      const data = await res.json()
+      set(state => ({ anecdotes: [...state.anecdotes, data] }))
+      return data
+    } catch (error) {
+      console.error('Failed to create anecdote', error)
+    }
+  },
+
+  deleteAnecdote: async (id) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+      set(state => ({ anecdotes: state.anecdotes.filter(a => String(a.id) !== String(id)) }))
+    } catch (error) {
+      console.error('Failed to delete anecdote', error)
+    }
+  },
 
   setFilter: (filter) => set({ filter }),
 }))

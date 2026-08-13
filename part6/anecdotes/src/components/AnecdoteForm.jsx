@@ -1,14 +1,19 @@
 import { useState } from 'react'
 import { useAnecdoteStore } from '../store'
+import { useNotificationStore } from '../notificationStore'
 
 const AnecdoteForm = () => {
   const [input, setInput] = useState('')
   const addAnecdote = useAnecdoteStore(state => state.addAnecdote)
+  const setNotification = useNotificationStore(state => state.setNotification)
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault()
     if (input.trim()) {
-      addAnecdote(input)
+      const created = await addAnecdote(input)
+      if (created) {
+        setNotification(`You created '${input}'`, 5000)
+      }
       setInput('')
     }
   }
