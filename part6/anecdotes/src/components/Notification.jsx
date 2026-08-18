@@ -1,8 +1,7 @@
-import React from 'react'
-import { useNotificationStore } from '../notificationStore'
+import { useNotification } from '../NotificationContext'
 
 const Notification = () => {
-  const notification = useNotificationStore(state => state.notification)
+  const { notification } = useNotification()
 
   const style = {
     border: 'solid',

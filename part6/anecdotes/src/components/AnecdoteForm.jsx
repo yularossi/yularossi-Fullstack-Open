@@ -1,21 +1,21 @@
 import { useState } from 'react'
-import { useAnecdoteStore } from '../store'
-import { useNotificationStore } from '../notificationStore'
+import { useCreateAnecdote } from '../hooks'
+import { useNotification } from '../NotificationContext'
 
 const AnecdoteForm = () => {
   const [input, setInput] = useState('')
-  const addAnecdote = useAnecdoteStore(state => state.addAnecdote)
-  const setNotification = useNotificationStore(state => state.setNotification)
+  const createMutation = useCreateAnecdote()
+  const { setNotification } = useNotification()
 
-  const handleCreate = async (e) => {
+  const handleCreate = (e) => {
     e.preventDefault()
-    if (input.trim()) {
-      const created = await addAnecdote(input)
-      if (created) {
-        setNotification(`You created '${input}'`, 5000)
-      }
-      setInput('')
+    const trimmed = input.trim()
+    if (trimmed.length < 5) {
+      setNotification('Anecdote must be at least 5 characters long', 5000)
+      return
     }
+    createMutation.mutate(trimmed)
+    setInput('')
   }
 
   return (
