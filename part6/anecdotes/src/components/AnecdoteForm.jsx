@@ -1,20 +1,21 @@
 import { useState } from 'react'
-import { useCreateAnecdote } from '../hooks'
-import { useNotification } from '../NotificationContext'
+import { useDispatch } from 'react-redux'
+import { addAnecdote } from '../reducers/anecdoteReducer'
+import { showNotification } from '../actions/notificationActions'
 
 const AnecdoteForm = () => {
   const [input, setInput] = useState('')
-  const createMutation = useCreateAnecdote()
-  const { setNotification } = useNotification()
+  const dispatch = useDispatch()
 
   const handleCreate = (e) => {
     e.preventDefault()
     const trimmed = input.trim()
     if (trimmed.length < 5) {
-      setNotification('Anecdote must be at least 5 characters long', 5000)
+      dispatch(showNotification('Anecdote must be at least 5 characters long', 5000))
       return
     }
-    createMutation.mutate(trimmed)
+    dispatch(addAnecdote(trimmed))
+    dispatch(showNotification(`You created '${trimmed}'`, 5000))
     setInput('')
   }
 
@@ -34,3 +35,4 @@ const AnecdoteForm = () => {
 }
 
 export default AnecdoteForm
+

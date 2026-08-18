@@ -1,11 +1,11 @@
-import { useAnecdoteStore } from '../store'
+import { useDispatch } from 'react-redux'
+import { setFilter } from '../reducers/filterReducer'
 
 const Filter = () => {
-  const filter = useAnecdoteStore(state => state.filter)
-  const setFilter = useAnecdoteStore(state => state.setFilter)
+  const dispatch = useDispatch()
 
   const handleChange = (event) => {
-    setFilter(event.target.value)
+    dispatch(setFilter(event.target.value))
   }
 
   const style = {
@@ -14,7 +14,7 @@ const Filter = () => {
 
   return (
     <div style={style}>
-      filter <input onChange={handleChange} value={filter} />
+      <div>filter <input onChange={handleChange} /></div>
     </div>
   )
 }

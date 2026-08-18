@@ -1,17 +1,17 @@
-import { useStatsStore } from '../store'
+import { useDispatch } from 'react-redux'
 
 const Controls = () => {
-  const good = useStatsStore(state => state.addGood)
-  const neutral = useStatsStore(state => state.addNeutral)
-  const bad = useStatsStore(state => state.addBad)
+  const dispatch = useDispatch()
 
   return (
     <div>
-      <button onClick={good}>Good</button>
-      <button onClick={neutral}>Neutral</button>
-      <button onClick={bad}>Bad</button>
+      <button onClick={() => dispatch({ type: 'GOOD' })}>good</button>
+      <button onClick={() => dispatch({ type: 'OK' })}>ok</button>
+      <button onClick={() => dispatch({ type: 'BAD' })}>bad</button>
+      <button onClick={() => dispatch({ type: 'RESET' })}>reset stats</button>
     </div>
   )
 }
 
 export default Controls
+
